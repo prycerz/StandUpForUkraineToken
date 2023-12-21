@@ -6,6 +6,7 @@ The main idea is to create a Token that gives 10% to the special wallet adress o
 Things to be done:
 Firstly:
 Toke name
+Token Type: ERC 20 (like Turbo Token)
 Code (Solidity)
 metamsk
 merket stocks
