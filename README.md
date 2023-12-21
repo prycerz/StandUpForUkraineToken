@@ -32,7 +32,9 @@ merket stocks
 
 Special Wallet
 
-GitHub RepoRopsten (after)
+GitHub Repo
+
+Ropsten (after)
 
 
 
