@@ -3,6 +3,15 @@ We are here to help Ukraine, country struggling with war with Russia.
 
 The main idea is to create a Token that gives 10% to the special wallet adress on every Token that is bought and give the created idea to the Ukrainian Gouvernment.
 
+# Description of files
+
+10%-90% contains code of the function for the special wallet
+
+TokenBackedByGas contains code of Token itself
+
+combined cointains both codes together. We still need to add sepcial wallet address and checks if the code actually works.
+
+
 # Things to be done:
 
 ## Firstly:
