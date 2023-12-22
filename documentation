@@ -1,0 +1,45 @@
+Inheritance:
+
+The contract inherits from the standard OpenZeppelin ERC-20 contract (ERC20.sol).
+Contract Variables:
+
+specialWallet: Address that receives a certain amount of tokens initially.
+rewardWallet: Address with privileges to distribute rewards.
+totalRewards: Total available amount of rewards (1,000,000 tokens).
+emissionTimestamp: Timestamp of the first emission.
+lastDistributionTimestamp: Timestamp of the last reward distribution.
+distributionsCount: Counter for reward distributions.
+totalTransactions: Total number of token transactions.
+  
+Mappings:
+
+totalTransactionAmounts: Keeps track of the cumulative transaction amounts for each address.
+startOfWindow: Records the start time of the reward calculation window for each address.
+rewardsPerAddress: Stores accumulated rewards for each address.
+  
+Arrays:
+
+rewardAddresses: An array containing addresses eligible to receive rewards.
+  
+Constructor:
+
+Initializes the contract with a name and symbol for the token.
+Sets special and reward wallets.
+Emits 1,000,000 tokens to the special wallet.
+  
+Transfer Function:
+
+Overrides the standard ERC-20 transfer function, adding a 10% transaction fee sent to the special wallet.
+Updates transaction statistics and calls the updateMonthlyReward function.
+  
+Distribute Rewards Function:
+
+Can only be called by the rewardWallet.
+Checks if at least a month has passed since the last distribution.
+Calculates and allocates rewards based on the percentage share of transactions for each address in the rewardAddresses list.
+Resets statistics and timestamp after distribution.
+  
+Update Monthly Reward Function:
+
+Internal function to update monthly reward information for a given address.
+Checks if at least a month has passed since the last distribution and resets the reward calculation window.
