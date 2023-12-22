@@ -1,92 +1,94 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract YourToken is ERC20 {
     address public specialWallet;
     address public rewardWallet;
     uint256 public totalRewards = 1000000;
+    uint256 public emissionTimestamp;  // Timestamp pierwszej emisji
     uint256 public lastDistributionTimestamp;
     uint256 public distributionsCount;
-    bool public rewardReductionActivated;
+    uint256 public totalTransactions;
 
     mapping(address => uint256) public totalTransactionAmounts;
+    mapping(address => uint256) public startOfWindow;
+    mapping(address => uint256) public rewardsPerAddress;
+
+    // Table of addresses rewardAddresses
+    address[] public rewardAddresses;
 
     constructor(address _specialWallet, address _rewardWallet) ERC20("StandUpForUkraineToken", "SUFU") {
-
-     require(_specialWallet != address(0), "Special wallet cannot be the zero address");
-    require(_rewardWallet != address(0), "Reward wallet cannot be the zero address");
+        require(_specialWallet != address(0), "Special wallet cannot be the zero address");
+        require(_rewardWallet != address(0), "Reward wallet cannot be the zero address");
 
         specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
         rewardWallet = 0x766a54da8de513579C801A113521c4135D04C135;
-        lastDistributionTimestamp = block.timestamp;
 
-        // Generetaing 1000000  tokens for special wallet at the beginnging
-        _mint(specialWallet, 1000000 * (9**decimals()));
+        // First emission
+        emissionTimestamp = block.timestamp;
 
-            // Max Token Supply in all time use (forever)
-    uint256 maxSupply = 50000000 * (9**decimals());
-    require(totalSupply() <= maxSupply, "Total supply exceeds maximum supply");
-}
-     
-    // Fucntion that makes 10 % for sepcial wallet
+        // generating 1000000 Tokens for special wallet at the very beginning
+        _mint(specialWallet, 1000000 * (10**decimals()));
+    }
+
     function transfer(address recipient, uint256 amount) public override returns (bool) {
         uint256 taxAmount = (amount * 10) / 100;
 
-        // sending 10% to special wallet
         super.transfer(specialWallet, taxAmount);
-
-        // 90% to the person that shoud be given it
         super.transfer(recipient, amount - taxAmount);
 
-        // Adding this transaction to all transactions of the sender
         totalTransactionAmounts[msg.sender] += amount;
+        totalTransactions += amount;
+
+        updateMonthlyReward(msg.sender);
 
         return true;
     }
 
-    // Functions for adding all transactions in my token
-    function calculateTotalTransactionAmount() public view returns (uint256) {
-        uint256 totalAmount = 0;
-
-        // Counting for all adresses
-     for (uint256 i = 0; i < balanceOf(address(this)); i++) {
-            address account = tokenByIndex(i);
-            totalAmount += totalTransactionAmounts[account];
-        }
-
-        return totalAmount;
-    }
-
-    // The % of ypur transactions in all monthly transactions are you rewards from the 1000000 tokens month drop
     function distributeRewards() public {
         require(msg.sender == rewardWallet, "Only the reward wallet can distribute rewards");
 
-        // Checking if one moth is gone
-        require(block.timestamp >= lastDistributionTimestamp + 30 days, "Monthly distribution not yet allowed");
+        // Checking if we have one month since last distribution
+        if (block.timestamp >= lastDistributionTimestamp + 30 days) {
+            // Obliczenie ilości nowych tokenów do rozdania
+            uint256 monthlyReward = 1000000 * (10**decimals());
 
-        uint256 totalTransactions = calculateTotalTransactionAmount();
+            // Giving tokens with a rule:  your transactions is a ceratin % of all transactions, so you will be given this % of reward
+          for (uint256 i = 0; i < rewardAddresses.length; i++) {
+            address account = rewardAddresses[i];
+                uint256 accountTransactions = totalTransactionAmounts[account];
+                uint256 accountReward = (accountTransactions * monthlyReward) / totalTransactions;
 
-        // Ending distributions after 50 distributions
-        if (distributionsCount >= 50 && !rewardReductionActivated) {
-            rewardReductionActivated = true;
-            totalRewards = 0; // Zmniejszenie puli nagród do zera
+                // Initialization new tokens to the ceratin wallet
+                rewardsPerAddress[account] += accountReward;
+
+                // Reset of the time window of 30 days
+                startOfWindow[account] = block.timestamp;
+            }
+
+            // Adding new tokens to new wallets
+            for (uint256 i = 0; i < rewardAddresses.length; i++) {
+            address account = rewardAddresses[i];
+                super.transfer(account, rewardsPerAddress[account]);
+                rewardsPerAddress[account] = 0;
+            }
+
+            // Reset of statistic and time
+            totalTransactions = 0;
+            lastDistributionTimestamp = block.timestamp;
+            distributionsCount++;
         }
+    }
 
-        for (uint256 i = 0; i < totalSupply(); i++) {
-            address account = tokenByIndex(i);
-            uint256 accountTransactions = totalTransactionAmounts[account];
-            uint256 accountReward = (accountTransactions * totalRewards) / totalTransactions;
+    function updateMonthlyReward(address account) internal {
+        totalTransactionAmounts[account] += totalTransactions;
 
-            // Giving rewards for token owners
-            super.transfer(account, accountReward);
+        // Checking if one moth is gone since last drop of tokens
+        if (block.timestamp >= lastDistributionTimestamp + 30 days) {
+            // Resetowanie czasu początkowego okna czasowego na aktualny czas
+            startOfWindow[account] = block.timestamp;
         }
-
-        // Actualization of time
-        lastDistributionTimestamp = block.timestamp;
-        distributionsCount++;
     }
 }
-
