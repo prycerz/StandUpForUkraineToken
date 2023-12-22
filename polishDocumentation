@@ -1,0 +1,44 @@
+Inheritance (Dziedziczenie):
+
+Kontrakt dziedziczy od standardowego kontraktu ERC-20 dostarczanego przez OpenZeppelin (ERC20.sol).
+
+Zmienne kontraktu:
+
+specialWallet: Adres, który otrzymuje pewną ilość tokenów na początku.
+rewardWallet: Adres, który ma uprawnienia do dystrybucji nagród.
+totalRewards: Całkowita dostępna ilość nagród (1 000 000 tokenów).
+emissionTimestamp: Sygnatura czasowa pierwszej emisji.
+lastDistributionTimestamp: Sygnatura czasowa ostatniej dystrybucji nagród.
+distributionsCount: Licznik dystrybucji nagród.
+totalTransactions: Całkowita liczba transakcji tokenów.
+
+Mapowania:
+
+totalTransactionAmounts: Przechowuje sumaryczną kwotę transakcji dla każdego adresu.
+startOfWindow: Zapisuje czas rozpoczęcia okna kalkulacji nagród dla każdego adresu.
+rewardsPerAddress: Przechowuje nagrody akumulowane dla każdego adresu.
+Tablice:
+
+rewardAddresses: Tablica zawierająca adresy uprawnione do otrzymywania nagród.
+
+Konstruktor:
+
+Inicjalizuje kontrakt nazwą i symbolem tokena, a także ustawia specjalny i nagrodowy portfel.
+Dodatkowo, emituje 1 000 000 tokenów do specjalnego portfela.
+
+Funkcja transfer:
+
+Nadpisuje funkcję transfer standardowego ERC-20, dodając opłatę transakcyjną w wysokości 10% do specjalnego portfela.
+Aktualizuje statystyki transakcji i wywołuje funkcję updateMonthlyReward.
+
+Funkcja distributeRewards:
+
+Może być wywoływana tylko przez rewardWallet.
+Sprawdza, czy minął co najmniej miesiąc od ostatniej dystrybucji.
+Oblicza i przydziela nagrody na podstawie procentowego udziału transakcji dla każdego adresu na liście rewardAddresses.
+Resetuje statystyki i sygnaturę czasową po dystrybucji.
+
+Funkcja updateMonthlyReward:
+
+Funkcja wewnętrzna do aktualizacji informacji o miesięcznej nagrodzie dla danego adresu.
+Sprawdza, czy minął co najmniej miesiąc od ostatniej dystrybucji i resetuje okno kalkulacji nagród.
