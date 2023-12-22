@@ -31,6 +31,9 @@ contract YourToken is ERC20 {
 
         // Generowanie 1000000 tokenów dla special wallet na początku
         _mint(specialWallet, 1000000 * (10**decimals()));
+
+        // Ustawienie czasu pierwszej dystrybucji po 30 dniach od emisji
+        lastDistributionTimestamp = emissionTimestamp + 30 days;
     }
 
     function transfer(address recipient, uint256 amount) public override returns (bool) {
@@ -47,17 +50,15 @@ contract YourToken is ERC20 {
         return true;
     }
 
-    function distributeRewards() public {
-        require(msg.sender == rewardWallet, "Only the reward wallet can distribute rewards");
-
+    function distributeRewards() internal {
         // Sprawdzenie, czy minął miesiąc od ostatniej dystrybucji
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
             // Obliczenie ilości nowych tokenów do rozdania
             uint256 monthlyReward = 1000000 * (10**decimals());
 
             // Przydzielanie tokenów na podstawie procentowego udziału transakcji
-          for (uint256 i = 0; i < rewardAddresses.length; i++) {
-            address account = rewardAddresses[i];
+            for (uint256 i = 0; i < rewardAddresses.length; i++) {
+                address account = rewardAddresses[i];
                 uint256 accountTransactions = totalTransactionAmounts[account];
                 uint256 accountReward = (accountTransactions * monthlyReward) / totalTransactions;
 
@@ -70,7 +71,7 @@ contract YourToken is ERC20 {
 
             // Przydzielanie nagród do istniejących portfeli
             for (uint256 i = 0; i < rewardAddresses.length; i++) {
-            address account = rewardAddresses[i];
+                address account = rewardAddresses[i];
                 super.transfer(account, rewardsPerAddress[account]);
                 rewardsPerAddress[account] = 0;
             }
