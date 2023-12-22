@@ -7,7 +7,7 @@ contract YourToken is ERC20 {
     address public specialWallet;
     address public rewardWallet;
     uint256 public totalRewards = 1000000;
-    uint256 public emissionTimestamp;  // Timestamp pierwszej emisji
+    uint256 public emissionTimestamp;
     uint256 public lastDistributionTimestamp;
     uint256 public distributionsCount;
     uint256 public totalTransactions;
@@ -23,8 +23,8 @@ contract YourToken is ERC20 {
         require(_specialWallet != address(0), "Special wallet cannot be the zero address");
         require(_rewardWallet != address(0), "Reward wallet cannot be the zero address");
 
-        specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
-        rewardWallet = 0x766a54da8de513579C801A113521c4135D04C135;
+        specialWallet = _specialWallet;
+        rewardWallet = _rewardWallet;
 
         // Ustawienie czasu pierwszej emisji
         emissionTimestamp = block.timestamp;
@@ -46,6 +46,11 @@ contract YourToken is ERC20 {
         totalTransactions += amount;
 
         updateMonthlyReward(msg.sender);
+
+        // Dodane automatycznej dystrybucji po upływie 30 dni od czasu emisji
+        if (block.timestamp >= lastDistributionTimestamp + 30 days) {
+            distributeRewards();
+        }
 
         return true;
     }
@@ -73,6 +78,10 @@ contract YourToken is ERC20 {
             for (uint256 i = 0; i < rewardAddresses.length; i++) {
                 address account = rewardAddresses[i];
                 super.transfer(account, rewardsPerAddress[account]);
+
+                // Dodanie nowych tokenów do puli
+                _mint(rewardWallet, monthlyReward);
+
                 rewardsPerAddress[account] = 0;
             }
 
