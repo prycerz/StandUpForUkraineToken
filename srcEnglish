@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract YourToken is ERC20 {
     address public specialWallet;
-    address public rewardWallet;
     uint256 public totalRewards = 1000000;
     uint256 public emissionTimestamp;
     uint256 public lastDistributionTimestamp;
@@ -14,25 +13,22 @@ contract YourToken is ERC20 {
 
     mapping(address => uint256) public totalTransactionAmounts;
     mapping(address => uint256) public startOfWindow;
-    mapping(address => uint256) public rewardsPerAddress;
 
-    // Declaration of table rewardAddresses
+    // Deklaracja tablicy rewardAddresses
     address[] public rewardAddresses;
 
-    constructor(address _specialWallet, address _rewardWallet) ERC20("StandUpForUkraineToken", "SUFU") {
+    constructor(address _specialWallet) ERC20("StandUpForUkraineToken", "SUFU") {
         require(_specialWallet != address(0), "Special wallet cannot be the zero address");
-        require(_rewardWallet != address(0), "Reward wallet cannot be the zero address");
 
         specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
-        rewardWallet = 0x766a54da8de513579C801A113521c4135D04C135;
 
-        // Setting the time for the initial issuance.
+        // Ustawienie czasu pierwszej emisji
         emissionTimestamp = block.timestamp;
 
-        // Generating 1,000,000 tokens for a special wallet initially.
+        // Generowanie 1000000 tokenów dla special wallet na początku
         _mint(specialWallet, 1000000 * (10**decimals()));
 
-        // Setting the time for the first distribution 30 days after issuance.
+        // Ustawienie czasu pierwszej dystrybucji po 30 dniach od emisji
         lastDistributionTimestamp = emissionTimestamp + 30 days;
     }
 
@@ -47,7 +43,7 @@ contract YourToken is ERC20 {
 
         updateMonthlyReward(msg.sender);
 
-        // Implementing automatic distribution after 30 days from the issuance time.
+        // Dodane automatycznej dystrybucji po upływie 30 dni od czasu emisji
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
             distributeRewards();
         }
@@ -56,36 +52,25 @@ contract YourToken is ERC20 {
     }
 
     function distributeRewards() internal {
-        // Checking if a month has passed since the last distribution.
+        // Sprawdzenie, czy minął miesiąc od ostatniej dystrybucji
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Calculating the amount of new tokens to distribute.
+            // Obliczenie ilości nowych tokenów do rozdania
             uint256 monthlyReward = 1000000 * (10**decimals());
 
-            // Allocating tokens based on the percentage share of transactions.
+            // Przydzielanie nagród do istniejących portfeli
             for (uint256 i = 0; i < rewardAddresses.length; i++) {
                 address account = rewardAddresses[i];
                 uint256 accountTransactions = totalTransactionAmounts[account];
                 uint256 accountReward = (accountTransactions * monthlyReward) / totalTransactions;
 
-                // Allocating new tokens to existing wallets.
-                rewardsPerAddress[account] += accountReward;
+                // Przydzielanie nowych tokenów do istniejących portfeli jako nagroda
+                _mint(account, accountReward);
 
-                // Resetting the start time of the time window to the current time.
+                // Resetowanie czasu początkowego okna czasowego na aktualny czas
                 startOfWindow[account] = block.timestamp;
             }
 
-            // Allocating rewards to existing wallets.
-            for (uint256 i = 0; i < rewardAddresses.length; i++) {
-                address account = rewardAddresses[i];
-                super.transfer(account, rewardsPerAddress[account]);
-
-                // Adding new tokens to the pool.
-                _mint(rewardWallet, monthlyReward);
-
-                rewardsPerAddress[account] = 0;
-            }
-
-            // Resetting statistics and time
+            // Resetowanie statystyk i czasu
             totalTransactions = 0;
             lastDistributionTimestamp = block.timestamp;
             distributionsCount++;
@@ -95,9 +80,9 @@ contract YourToken is ERC20 {
     function updateMonthlyReward(address account) internal {
         totalTransactionAmounts[account] += totalTransactions;
 
-        // Checking if a month has passed since the last distribution.
+        // Sprawdzenie, czy minął miesiąc od ostatniego rozdania
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Resetting the start time of the time window to the current time
+            // Resetowanie czasu początkowego okna czasowego na aktualny czas
             startOfWindow[account] = block.timestamp;
         }
     }
