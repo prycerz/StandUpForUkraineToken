@@ -1,0 +1,4 @@
+Due to unlimited number of tokens, there might be an inflation. 
+At the biggining very big, bacuse adding one  million new tokens each month
+makes infaltion  each month like 50%, 33%, 25%, 20%, 16.6%, and so on, but afetr
+10th month it will be 10% and after 100th just 1%. 
