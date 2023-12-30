@@ -43,11 +43,20 @@ Ropsten (after)
 
 ## Functions:
 
-adding wallet
+adding wallet 
 
 10/90
 
-(optional) limiting the posibility of buying more than 10% of tokens that are currently in circulation to prevent monopolization due to the risk of attack from Russia
+
+things to be done:
+
+unlimited number of tokens
+
+mining new tokens every month
+
+EVERYTHING ELSE WORKS
+
+
 
 
 
