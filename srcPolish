@@ -20,7 +20,7 @@ contract YourToken is ERC20 {
     constructor(address _specialWallet) ERC20("StandUpForUkraineToken", "SUFU") {
         require(_specialWallet != address(0), "Special wallet cannot be the zero address");
 
-        specialWallet = _specialWallet;
+        specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
 
         // Ustawienie czasu pierwszej emisji
         emissionTimestamp = block.timestamp;
