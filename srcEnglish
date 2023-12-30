@@ -82,13 +82,13 @@ contract YourToken is ERC20 {
             // Calculating the amount of new tokens to distribute.
             uint256 monthlyReward = 1000000 * (10**decimals());
 
-            // Przydzielanie nagród do istniejących portfeli
+            // Allocating rewards to existing wallets
             for (uint256 i = 0; i < rewardAddresses.length; i++) {
                 address account = rewardAddresses[i];
                 uint256 accountTransactions = totalTransactionAmounts[account];
                 uint256 accountReward = (accountTransactions * monthlyReward) / totalTransactions;
 
-                // Przydzielanie nowych tokenów do istniejących portfeli jako nagroda
+                // Allocating new tokens to existing wallets as a reward.
                 _mint(account, accountReward);
 
                // Resetting the start time of the time window to the current time
