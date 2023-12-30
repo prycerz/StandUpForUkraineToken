@@ -91,11 +91,11 @@ contract YourToken is ERC20 {
                 // Przydzielanie nowych tokenów do istniejących portfeli jako nagroda
                 _mint(account, accountReward);
 
-                // Resetowanie czasu początkowego okna czasowego na aktualny czas
+               // Resetting the start time of the time window to the current time
                 startOfWindow[account] = block.timestamp;
             }
 
-            // Resetowanie statystyk i czasu
+           // Resetting statistics and time.
             totalTransactions = 0;
             lastDistributionTimestamp = block.timestamp;
             distributionsCount++;
