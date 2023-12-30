@@ -25,10 +25,10 @@ contract YourToken is ERC20 {
         // Setting the time of the first emission.
         emissionTimestamp = block.timestamp;
 
-        // Generowanie 1000000 tokenów dla special wallet na początku
+        // Generating 1000000 tokens for a special wallet at the beginning.
         _mint(specialWallet, 1000000 * (10**decimals()));
 
-        // Ustawienie czasu pierwszej dystrybucji po 30 dniach od emisji
+        // Setting the time for the first distribution after 30 days from emission.
         lastDistributionTimestamp = emissionTimestamp + 30 days;
     }
 
@@ -43,12 +43,12 @@ contract YourToken is ERC20 {
 
         updateMonthlyReward(msg.sender);
 
-        // Dodane automatycznej dystrybucji po upływie 30 dni od czasu emisji
+        // Added automatic distribution after 30 days from the emission time.
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
             distributeRewards();
         }
 
-        // Dodaj automatycznie nowe adresy do tablicy rewardAddresses
+        // Automatically add new addresses to the rewardAddresses array.
         if (!isRewardAddress(msg.sender)) {
             rewardAddresses.push(msg.sender);
         }
