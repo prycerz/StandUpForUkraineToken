@@ -56,7 +56,7 @@ contract YourToken is ERC20 {
         return true;
     }
 
-    // Funkcja sprawdzająca, czy adres jest już w tablicy rewardAddresses
+    // Function checking whether the address is already in the rewardAddresses array.
     function isRewardAddress(address account) internal view returns (bool) {
         for (uint256 i = 0; i < rewardAddresses.length; i++) {
             if (rewardAddresses[i] == account) {
@@ -66,12 +66,12 @@ contract YourToken is ERC20 {
         return false;
     }
 
-    // Funkcja do dodawania nowych adresów uprawnionych do nagród
+    // Function for adding new addresses eligible for rewards.
     function addRewardAddress(address newRewardAddress) external {
         require(msg.sender == specialWallet, "Only the special wallet can add reward addresses");
         require(newRewardAddress != address(0), "Reward address cannot be the zero address");
 
-        // Dodanie nowego adresu do tablicy
+        // Adding a new address to the array.
         rewardAddresses.push(newRewardAddress);
     }
 
@@ -102,13 +102,13 @@ contract YourToken is ERC20 {
         }
     }
 
-    // Funkcja aktualizująca nagrody miesięczne dla danego konta
+    // Function updating monthly rewards for a given account.
     function updateMonthlyReward(address account) internal {
         totalTransactionAmounts[account] += totalTransactions;
 
-        // Sprawdzenie, czy minął miesiąc od ostatniego rozdania
+        // Checking if a month has passed since the last distribution.
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Resetowanie czasu początkowego okna czasowego na aktualny czas
+          // Resetting the start time of the time window to the current time.
             startOfWindow[account] = block.timestamp;
         }
     }
