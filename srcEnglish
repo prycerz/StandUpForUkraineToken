@@ -75,11 +75,11 @@ contract YourToken is ERC20 {
         rewardAddresses.push(newRewardAddress);
     }
 
-    // Funkcja rozdzielająca nagrody
+    // Reward distribution function.
     function distributeRewards() internal {
-        // Sprawdzenie, czy minął miesiąc od ostatniej dystrybucji
+        // Checking if a month has passed since the last distribution.
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Obliczenie ilości nowych tokenów do rozdania
+            // Calculating the amount of new tokens to distribute.
             uint256 monthlyReward = 1000000 * (10**decimals());
 
             // Przydzielanie nagród do istniejących portfeli
