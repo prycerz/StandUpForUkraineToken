@@ -14,7 +14,7 @@ contract YourToken is ERC20 {
     mapping(address => uint256) public totalTransactionAmounts;
     mapping(address => uint256) public startOfWindow;
 
-    // Declaration of table of rewardAddresses
+     // Declaration of the rewardAddresses array.
     address[] public rewardAddresses;
 
     constructor(address _specialWallet) ERC20("StandUpForUkraineToken", "SUFU") {
