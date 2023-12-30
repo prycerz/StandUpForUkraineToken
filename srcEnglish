@@ -14,7 +14,7 @@ contract YourToken is ERC20 {
     mapping(address => uint256) public totalTransactionAmounts;
     mapping(address => uint256) public startOfWindow;
 
-     // Declaration of the rewardAddresses array.
+    // Deklaracja tablicy rewardAddresses
     address[] public rewardAddresses;
 
     constructor(address _specialWallet) ERC20("StandUpForUkraineToken", "SUFU") {
@@ -22,18 +22,18 @@ contract YourToken is ERC20 {
 
         specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
 
-        // Setting the time of first emition
+        // Ustawienie czasu pierwszej emisji
         emissionTimestamp = block.timestamp;
 
-        // Generating a million of coins for special wallet at the very beginning
+        // Generowanie 1000000 tokenów dla special wallet na początku
         _mint(specialWallet, 1000000 * (10**decimals()));
 
-        // Fisrt distribution after 30 days since first emission
+        // Ustawienie czasu pierwszej dystrybucji po 30 dniach od emisji
         lastDistributionTimestamp = emissionTimestamp + 30 days;
     }
 
     function transfer(address recipient, uint256 amount) public override returns (bool) {
-        uint256 taxAmount = (amount * 10) / 100;
+        uint256 taxAmount = (amount * 2) / 100;
 
         super.transfer(specialWallet, taxAmount);
         super.transfer(recipient, amount - taxAmount);
@@ -43,46 +43,72 @@ contract YourToken is ERC20 {
 
         updateMonthlyReward(msg.sender);
 
-        // Adding automatic distribution after 30 days
+        // Dodane automatycznej dystrybucji po upływie 30 dni od czasu emisji
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
             distributeRewards();
+        }
+
+        // Dodaj automatycznie nowe adresy do tablicy rewardAddresses
+        if (!isRewardAddress(msg.sender)) {
+            rewardAddresses.push(msg.sender);
         }
 
         return true;
     }
 
+    // Funkcja sprawdzająca, czy adres jest już w tablicy rewardAddresses
+    function isRewardAddress(address account) internal view returns (bool) {
+        for (uint256 i = 0; i < rewardAddresses.length; i++) {
+            if (rewardAddresses[i] == account) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Funkcja do dodawania nowych adresów uprawnionych do nagród
+    function addRewardAddress(address newRewardAddress) external {
+        require(msg.sender == specialWallet, "Only the special wallet can add reward addresses");
+        require(newRewardAddress != address(0), "Reward address cannot be the zero address");
+
+        // Dodanie nowego adresu do tablicy
+        rewardAddresses.push(newRewardAddress);
+    }
+
+    // Funkcja rozdzielająca nagrody
     function distributeRewards() internal {
-        // Checking if 30 days are gone since first distribution
+        // Sprawdzenie, czy minął miesiąc od ostatniej dystrybucji
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Counting new tokens to be given
+            // Obliczenie ilości nowych tokenów do rozdania
             uint256 monthlyReward = 1000000 * (10**decimals());
 
-            // Adding new tokens to existing wallets
+            // Przydzielanie nagród do istniejących portfeli
             for (uint256 i = 0; i < rewardAddresses.length; i++) {
                 address account = rewardAddresses[i];
                 uint256 accountTransactions = totalTransactionAmounts[account];
                 uint256 accountReward = (accountTransactions * monthlyReward) / totalTransactions;
 
-                // Adding new tokens to existing wallets as a reward
+                // Przydzielanie nowych tokenów do istniejących portfeli jako nagroda
                 _mint(account, accountReward);
 
-                // Restart of window time for current time
+                // Resetowanie czasu początkowego okna czasowego na aktualny czas
                 startOfWindow[account] = block.timestamp;
             }
 
-            // Restart of statistic and time
+            // Resetowanie statystyk i czasu
             totalTransactions = 0;
             lastDistributionTimestamp = block.timestamp;
             distributionsCount++;
         }
     }
 
+    // Funkcja aktualizująca nagrody miesięczne dla danego konta
     function updateMonthlyReward(address account) internal {
         totalTransactionAmounts[account] += totalTransactions;
 
-        // Checking if one month (30 days) since last partiotion (drop) has gone
+        // Sprawdzenie, czy minął miesiąc od ostatniego rozdania
         if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Resetting the start time of the time window to the current time.
+            // Resetowanie czasu początkowego okna czasowego na aktualny czas
             startOfWindow[account] = block.timestamp;
         }
     }
