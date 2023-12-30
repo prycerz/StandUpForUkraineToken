@@ -22,7 +22,7 @@ contract YourToken is ERC20 {
 
         specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
 
-        // Ustawienie czasu pierwszej emisji
+        // Setting the time of the first emission.
         emissionTimestamp = block.timestamp;
 
         // Generowanie 1000000 tokenów dla special wallet na początku
