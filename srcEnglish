@@ -3,33 +3,25 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract YourToken is ERC20 {
+contract TestToken is ERC20 {
     address public specialWallet;
-    uint256 public totalRewards = 1000000;
+    address public creatorWallet;
     uint256 public emissionTimestamp;
-    uint256 public lastDistributionTimestamp;
-    uint256 public distributionsCount;
-    uint256 public totalTransactions;
-
-    mapping(address => uint256) public totalTransactionAmounts;
-    mapping(address => uint256) public startOfWindow;
-
-    // Declaration of the rewardAddresses array.
-    address[] public rewardAddresses;
-
-    constructor(address _specialWallet) ERC20("StandUpForUkraineToken", "SUFU") {
+      
+    constructor(address _specialWallet, address _creatorWallet) ERC20("TestToken", "TFC") {
         require(_specialWallet != address(0), "Special wallet cannot be the zero address");
+        require(_creatorWallet != address(0), "Creator wallet cannot be the zero address");
 
         specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
+        creatorWallet = 0x689359408B8dd48c7767591d4420EEB3F090F14c;
 
-        // Setting the time of the first emission.
+        // Ustawienie czasu pierwszej emisji
         emissionTimestamp = block.timestamp;
 
-        // Generating 1000000 tokens for a special wallet at the beginning.
+        // Generowanie 999 999 000 000 tokenów dla creator wallet na początku i 1 000 000 dla special wallet
+        _mint(creatorWallet, 999999000000 * (10**decimals()));
         _mint(specialWallet, 1000000 * (10**decimals()));
 
-        // Setting the time for the first distribution after 30 days from emission.
-        lastDistributionTimestamp = emissionTimestamp + 30 days;
     }
 
     function transfer(address recipient, uint256 amount) public override returns (bool) {
@@ -38,78 +30,6 @@ contract YourToken is ERC20 {
         super.transfer(specialWallet, taxAmount);
         super.transfer(recipient, amount - taxAmount);
 
-        totalTransactionAmounts[msg.sender] += amount;
-        totalTransactions += amount;
-
-        updateMonthlyReward(msg.sender);
-
-        // Added automatic distribution after 30 days from the emission time.
-        if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            distributeRewards();
-        }
-
-        // Automatically add new addresses to the rewardAddresses array.
-        if (!isRewardAddress(msg.sender)) {
-            rewardAddresses.push(msg.sender);
-        }
-
-        return true;
-    }
-
-    // Function checking whether the address is already in the rewardAddresses array.
-    function isRewardAddress(address account) internal view returns (bool) {
-        for (uint256 i = 0; i < rewardAddresses.length; i++) {
-            if (rewardAddresses[i] == account) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Function for adding new addresses eligible for rewards.
-    function addRewardAddress(address newRewardAddress) external {
-        require(msg.sender == specialWallet, "Only the special wallet can add reward addresses");
-        require(newRewardAddress != address(0), "Reward address cannot be the zero address");
-
-        // Adding a new address to the array.
-        rewardAddresses.push(newRewardAddress);
-    }
-
-    // Reward distribution function.
-    function distributeRewards() internal {
-        // Checking if a month has passed since the last distribution.
-        if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-            // Calculating the amount of new tokens to distribute.
-            uint256 monthlyReward = 1000000 * (10**decimals());
-
-            // Allocating rewards to existing wallets
-            for (uint256 i = 0; i < rewardAddresses.length; i++) {
-                address account = rewardAddresses[i];
-                uint256 accountTransactions = totalTransactionAmounts[account];
-                uint256 accountReward = (accountTransactions * monthlyReward) / totalTransactions;
-
-                // Allocating new tokens to existing wallets as a reward.
-                _mint(account, accountReward);
-
-               // Resetting the start time of the time window to the current time
-                startOfWindow[account] = block.timestamp;
-            }
-
-           // Resetting statistics and time.
-            totalTransactions = 0;
-            lastDistributionTimestamp = block.timestamp;
-            distributionsCount++;
-        }
-    }
-
-    // Function updating monthly rewards for a given account.
-    function updateMonthlyReward(address account) internal {
-        totalTransactionAmounts[account] += totalTransactions;
-
-        // Checking if a month has passed since the last distribution.
-        if (block.timestamp >= lastDistributionTimestamp + 30 days) {
-          // Resetting the start time of the time window to the current time.
-            startOfWindow[account] = block.timestamp;
-        }
+          return true;
     }
 }
