@@ -3,11 +3,11 @@ We are here to help Ukraine, country struggling with war with Russia.
 
 web page: https://burbonraphael.github.io/
 
-The main idea is to create a Token that gives 10% to the special wallet adress on every Token that is bought and give the created idea to the Ukrainian Gouvernment.
+The main idea is to create a Token that gives 2% to the special wallet adress on every Token that is bought and give the created idea to the Ukrainian Gouvernment.
 
 # Description of files
 
-10%-90% contains code of the function for the special wallet
+2%-98% contains code of the function for the special wallet
 
 TokenBackedByGas contains code of Token itself
 
@@ -45,7 +45,7 @@ Ropsten (after)
 
 adding wallet 
 
-10/90
+2/98
 
 
 things to be done:
