@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract TestToken is ERC20 {
+    address public specialWallet;
+    address public creatorWallet;
+    uint256 public emissionTimestamp;
+      
+    constructor(address _specialWallet, address _creatorWallet) ERC20("TestToken", "TFC") {
+        require(_specialWallet != address(0), "Special wallet cannot be the zero address");
+        require(_creatorWallet != address(0), "Creator wallet cannot be the zero address");
+
+        specialWallet = 0xea1fDC0223005f1e6ee8862cC1Bb7bD2c50867FB;
+        creatorWallet = 0x689359408B8dd48c7767591d4420EEB3F090F14c;
+
+        // Ustawienie czasu pierwszej emisji
+        emissionTimestamp = block.timestamp;
+
+        // Generowanie 999 999 000 000 tokenów dla creator wallet na początku i 1 000 000 dla special wallet
+        _mint(creatorWallet, 999999000000 * (10**decimals()));
+        _mint(specialWallet, 1000000 * (10**decimals()));
+
+    }
+
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        uint256 taxAmount = (amount * 2) / 100;
+
+        super.transfer(specialWallet, taxAmount);
+        super.transfer(recipient, amount - taxAmount);
+
+          return true;
+    }
+}
